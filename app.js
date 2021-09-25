@@ -17,47 +17,46 @@ const articleSchema = new mongoose.Schema({
 
 const Article = new mongoose.model("Article", articleSchema);
 
-// GET (Fetch) all the articles
-app.get("/articles", function (req, res) {
-  Article.find(function (err, foundArticles) {
-    if (!err) {
-      res.send(foundArticles);
-    } else {
-      res.send(err);
-    }
-  });
-});
+app
+  .route("/articles")
+  .get(function (req, res) {
+    // GET (Fetch) all the articles
+    Article.find(function (err, foundArticles) {
+      if (!err) {
+        res.send(foundArticles);
+      } else {
+        res.send(err);
+      }
+    });
+  })
+  .post(function (req, res) {
+    // console.log(req.body.title);
+    // console.log(req.body.content);
 
-// POST a New Article (Creates one new article)
-app.post("/articles", function (req, res) {
-  // console.log(req.body.title);
-  // console.log(req.body.content);
+    // save this into our MongoDB
+    const newArticle = new Article({
+      title: req.body.title,
+      content: req.body.content,
+    });
 
-  // save this into our MongoDB
-  const newArticle = new Article({
-    title: req.body.title,
-    content: req.body.content,
+    newArticle.save(function (err) {
+      if (!err) {
+        console.log("Successfully added a new article!");
+      } else {
+        res.send(err);
+      }
+    });
+  })
+  .delete(function (req, res) {
+    // DELETE all the articles
+    Article.deleteMany(function (err) {
+      if (!err) {
+        res.send("Successfully deleted all the articles!");
+      } else {
+        res.send(err);
+      }
+    });
   });
-
-  newArticle.save(function (err) {
-    if (!err) {
-      res.send("Successfully added a new article!");
-    } else {
-      res.send(err);
-    }
-  });
-});
-
-// DELETE all the articles
-app.delete("/articles", function (req, res) {
-  Article.deleteMany(function (err) {
-    if (!err) {
-      res.send("Successfully deleted all the articles.");
-    } else {
-      res.send(err);
-    }
-  });
-});
 
 app.listen(3000, function () {
   console.log("Server started on port 3000!");
